@@ -7,6 +7,7 @@ import {
   StyleSheet,
 } from 'react-native';
 
+import ComposeBar from '../composebar';
 import Data from './data';
 
 export default class Demo extends Component {
@@ -51,17 +52,23 @@ export default class Demo extends Component {
 
   render() {
     return (
-      <ListView
-        style={styles.list}
-        dataSource={this.state.dataSource}
-        renderRow={this.renderRow}
-        renderSectionHeader={this.renderSectionHeader}
-      />
+      <View style={styles.container}>
+        <ListView
+          style={styles.list}
+          dataSource={this.state.dataSource}
+          renderRow={this.renderRow}
+          renderSectionHeader={this.renderSectionHeader}
+        />
+        <ComposeBar />
+      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   list: {
     marginTop: 40,
     backgroundColor: '#eeeeee',
