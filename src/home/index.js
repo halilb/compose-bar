@@ -4,6 +4,7 @@ import {
   Text,
   View,
   ListView,
+  StyleSheet,
 } from 'react-native';
 
 import Data from './data';
@@ -13,40 +14,87 @@ export default class Demo extends Component {
   constructor(props) {
     super(props);
 
-    const getSectionData = (dataBlob, sectionID) => {
-      return dataBlob[sectionID];
-    };
-    const getRowData = (dataBlob, sectionID, rowID) => {
-      return dataBlob[rowID];
-    };
-
-    var dataSource = new ListView.DataSource({
-      getRowData: getRowData,
-      getSectionHeaderData: getSectionData,
-      rowHasChanged: (row1, row2) => row1 !== row2,
-      sectionHeaderHasChanged: (s1, s2) => s1 !== s2,
+    const dataSource = new ListView.DataSource({
+      rowHasChanged: () => false,
+      sectionHeaderHasChanged: () => false,
     });
 
-    var dataBlob = {};
-    var sectionIDs = [];
-    var rowIDs = [];
-    Data.forEach((d, index) => {
-
+    const dataBlob = {};
+    Data.forEach(message => {
+      const sectionName = `${message.display_recipient} > ${message.subject}`;
+      if (!dataBlob[sectionName]) {
+        dataBlob[sectionName] = [];
+      }
+      dataBlob[sectionName].push(message);
     });
 
-    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
-      dataSource: ds.cloneWithRows([
-        'John', 'Joel', 'James', 'Jimmy', 'Jackson', 'Jillian', 'Julie', 'Devin'
-      ])
+      dataSource: dataSource.cloneWithRowsAndSections(dataBlob),
     };
+  }
+
+  renderSectionHeader(sectionData, sectionID) {
+    return (
+      <Text style={styles.sectionHeader}>{sectionID}</Text>
+    );
+  }
+
+  renderRow(rowData) {
+    return (
+      <View style={styles.row}>
+        <Text style={styles.author}>{rowData.sender_full_name}</Text>
+        <Text style={styles.message}>{rowData.content}</Text>
+        <View style={styles.separator} />
+      </View>
+    );
   }
 
   render() {
     return (
-      <View>
-        <Text>test</Text>
-      </View>
+      <ListView
+        style={styles.list}
+        dataSource={this.state.dataSource}
+        renderRow={this.renderRow}
+        renderSectionHeader={this.renderSectionHeader}
+      />
     );
   }
 }
+
+const styles = StyleSheet.create({
+  list: {
+    marginTop: 40,
+    backgroundColor: '#eeeeee',
+  },
+  sectionHeader: {
+    marginTop: 16,
+    padding: 5,
+    fontWeight: '500',
+    fontSize: 11,
+  },
+  row: {
+    backgroundColor: 'white',
+    justifyContent: 'center',
+  },
+  author: {
+    padding: 16,
+    fontWeight: 'bold',
+  },
+  message: {
+    padding: 16,
+    paddingTop: 0,
+  },
+  separator: {
+    height: 3,
+    backgroundColor: '#bbbbbb',
+  },
+  rowTitleText: {
+    fontSize: 17,
+    fontWeight: '500',
+  },
+  rowDetailText: {
+    fontSize: 15,
+    color: '#888888',
+    lineHeight: 20,
+  },
+});
