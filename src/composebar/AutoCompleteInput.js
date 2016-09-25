@@ -1,7 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import {
   Animated,
-  Easing,
   TouchableOpacity,
   TextInput,
   Text,
@@ -13,6 +12,7 @@ export default class AutoCompleteInput extends Component {
 
   static propTypes = {
     style: View.propTypes.style,
+    value: PropTypes.string,
     placeholder: PropTypes.string,
     options: PropTypes.array,
     optionHeight: PropTypes.number,
@@ -31,10 +31,16 @@ export default class AutoCompleteInput extends Component {
     this.adjustHeight = this.adjustHeight.bind(this);
 
     this.state = {
-      searchStr: '',
+      searchStr: props.value,
       openAnim: new Animated.Value(0),
       visibleOptions: props.options,
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      searchStr: nextProps.value,
+    });
   }
 
   onFocus() {
@@ -62,7 +68,6 @@ export default class AutoCompleteInput extends Component {
     Animated.timing(openAnim, {
       toValue: visibleOptions.length * optionHeight,
       duration: 300,
-      easing: Easing.bezier(0.7, 0, 0.3, 1),
     }).start();
   }
 
@@ -126,6 +131,6 @@ const styles = StyleSheet.create({
     bottom: 50,
     left: 0,
     right: 0,
-    backgroundColor: 'red',
+    backgroundColor: '#b2378d',
   },
 });
