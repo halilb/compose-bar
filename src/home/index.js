@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 
 import {
   TouchableOpacity,
@@ -12,6 +12,14 @@ import ComposeBar from '../composebar';
 import Data from './data';
 
 export default class Demo extends Component {
+
+  static propTypes = {
+    barHeight: PropTypes.number,
+  };
+
+  static defaultProps = {
+    barHeight: 120,
+  };
 
   constructor(props) {
     super(props);
@@ -85,6 +93,7 @@ export default class Demo extends Component {
   }
 
   render() {
+    const { barHeight } = this.props;
     const {
       dataSource,
       selectedTopic,
@@ -97,12 +106,15 @@ export default class Demo extends Component {
     return (
       <View style={styles.container}>
         <ListView
-          style={styles.list}
+          style={[styles.list, { marginBottom: barHeight }]}
           dataSource={dataSource}
           renderRow={this.renderRow}
           renderSectionHeader={this.renderSectionHeader}
         />
         <ComposeBar
+          style={{
+            height: barHeight,
+          }}
           subject={selectedSubject}
           topic={selectedTopic}
           subjectOptions={subjectOptions}

@@ -1,5 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import {
+  Animated,
+  Keyboard,
   TouchableOpacity,
   TextInput,
   View,
@@ -12,6 +14,7 @@ import AutoCompleteInput from './AutoCompleteInput';
 export default class ComposeBar extends Component {
 
   static propTypes = {
+    style: View.propTypes.style,
     subject: PropTypes.string,
     topic: PropTypes.string,
     subjectOptions: PropTypes.array,
@@ -29,10 +32,22 @@ export default class ComposeBar extends Component {
     super(props);
 
     this.togglePrivateMessage = this.togglePrivateMessage.bind(this);
+    this.onKeyboardShow = this.onKeyboardShow.bind(this);
+    this.onKeyboardHide = this.onKeyboardHide.bind(this);
+
+    this.animating = false;
 
     this.state = {
       privateMessage: false,
+      bottomAnim: new Animated.Value(0),
     };
+  }
+
+  componentWillMount() {
+    this.subscriptions = [
+      Keyboard.addListener('keyboardWillShow', this.onKeyboardShow),
+      Keyboard.addListener('keyboardWillHide', this.onKeyboardHide),
+    ];
   }
 
   componentWillReceiveProps(nextProps) {
@@ -41,6 +56,34 @@ export default class ComposeBar extends Component {
         privateMessage: false,
       });
     }
+  }
+
+  componentWillUnmount() {
+    this.subscriptions.forEach((sub) => sub.remove());
+  }
+
+  onKeyboardShow(event) {
+    const { endCoordinates, end } = event;
+    const keyboardHeight = endCoordinates ? endCoordinates.height : end.height;
+    this.animateComposeBar(keyboardHeight);
+  }
+
+  onKeyboardHide() {
+    this.animateComposeBar(0);
+  }
+
+  animateComposeBar(bottom) {
+    if (this.animating) {
+      return;
+    }
+
+    this.animating = true;
+    Animated.timing(
+      this.state.bottomAnim, {
+        duration: 300,
+        toValue: bottom,
+      },
+    ).start(() => this.animating = false);
   }
 
   togglePrivateMessage() {
@@ -112,10 +155,15 @@ export default class ComposeBar extends Component {
   }
 
   render() {
-    const { privateMessage } = this.state;
+    const { style } = this.props;
+    const { privateMessage, bottomAnim } = this.state;
 
     return (
-      <View style={styles.container}>
+      <Animated.View
+        style={[styles.container, style, {
+          bottom: bottomAnim,
+        }]}
+      >
         {privateMessage && this.renderPrivateMessageRow()}
         {!privateMessage && this.renderSubjectTopicRow()}
         <View style={styles.row}>
@@ -130,19 +178,21 @@ export default class ComposeBar extends Component {
             color="black"
           />
         </View>
-      </View>
+      </Animated.View>
     );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
     backgroundColor: '#E2E2E2',
   },
   row: {
     flex: 1,
     flexDirection: 'row',
-    height: 60,
     alignItems: 'center',
     paddingLeft: 16,
   },
