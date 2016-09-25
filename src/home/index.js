@@ -21,16 +21,32 @@ export default class Demo extends Component {
     });
 
     const dataBlob = {};
+    const subjectOptions = [];
+    const topicOptions = [];
+
     Data.forEach(message => {
-      const sectionName = `${message.display_recipient} > ${message.subject}`;
+      const {
+        display_recipient: topic,
+        subject,
+      } = message;
+      const sectionName = `${topic} > ${subject}`;
       if (!dataBlob[sectionName]) {
         dataBlob[sectionName] = [];
       }
       dataBlob[sectionName].push(message);
+
+      if (subjectOptions.indexOf(subject) === -1) {
+        subjectOptions.push(subject);
+      }
+      if (topicOptions.indexOf(topic) === -1) {
+        topicOptions.push(topic);
+      }
     });
 
     this.state = {
       dataSource: dataSource.cloneWithRowsAndSections(dataBlob),
+      subjectOptions,
+      topicOptions,
     };
   }
 
@@ -51,15 +67,24 @@ export default class Demo extends Component {
   }
 
   render() {
+    const {
+      dataSource,
+      subjectOptions,
+      topicOptions,
+    } = this.state;
+
     return (
       <View style={styles.container}>
         <ListView
           style={styles.list}
-          dataSource={this.state.dataSource}
+          dataSource={dataSource}
           renderRow={this.renderRow}
           renderSectionHeader={this.renderSectionHeader}
         />
-        <ComposeBar />
+        <ComposeBar
+          subjectOptions={subjectOptions}
+          topicOptions={topicOptions}
+        />
       </View>
     );
   }

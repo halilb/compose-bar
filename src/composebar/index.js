@@ -6,16 +6,33 @@ import {
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
+import AutoCompleteInput from './AutoCompleteInput';
 
 export default class ComposeBar extends Component {
 
+  static propTypes = {
+    subjectOptions: PropTypes.array,
+    topicOptions: PropTypes.array,
+  };
+
+  static defaultProps = {
+    subjectOptions: [],
+    topicOptions: [],
+  };
+
   render() {
+    const {
+      subjectOptions,
+      topicOptions,
+    } = this.props;
+
     return (
       <View style={styles.container}>
         <View style={styles.row}>
-          <TextInput
+          <AutoCompleteInput
             style={styles.input}
             placeholder={'Stream'}
+            options={subjectOptions}
           />
           <Icon
             style={styles.icon}
@@ -23,9 +40,10 @@ export default class ComposeBar extends Component {
             size={15}
             color="black"
           />
-          <TextInput
+          <AutoCompleteInput
             style={styles.input}
             placeholder={'Topic'}
+            options={topicOptions}
           />
           <Icon
             style={styles.icon}
